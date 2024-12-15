@@ -8,7 +8,7 @@ from sklearn.metrics import accuracy_score
 # Load Dataset
 @st.cache
 def load_data():
-    file_path = '/mnt/data/synthetic_final_mapping (1).csv'
+    file_path = 'synthetic_final_mapping (1).csv'
     return pd.read_csv(file_path)
 
 # Preprocess Data
