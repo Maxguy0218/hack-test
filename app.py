@@ -18,8 +18,10 @@ def load_and_train_model():
 
     # Preprocess data
     le = LabelEncoder()
+    column_encoders = {}
     for column in data.select_dtypes(include=['object']).columns:
         data[column] = le.fit_transform(data[column].fillna("Unknown"))
+        column_encoders[column] = le  # Save encoders for later
 
     # Train the model
     X = data.drop("Employment ID", axis=1)
@@ -27,7 +29,7 @@ def load_and_train_model():
     model = RandomForestClassifier(random_state=42)
     model.fit(X, y)
 
-    return model, data
+    return model, data, column_encoders
 
 # Recommend Employees
 def recommend_employees(model, input_data, data):
@@ -42,22 +44,26 @@ st.title("Employee Recommendation System")
 
 # Load and train model
 st.write("Initializing model...")
-model, data = load_and_train_model()
+model, data, column_encoders = load_and_train_model()
 st.success("Model is ready!")
 
 # Collect Demand Attributes
 st.subheader("Enter Demand Attributes")
 user_input = []
 for column in data.columns.drop("Employment ID"):
-    value = st.text_input(f"{column}:")
-    user_input.append(value)
+    if column in column_encoders:  # If column is categorical
+        options = list(column_encoders[column].classes_)
+        value = st.selectbox(f"{column}:", options)
+        user_input.append(column_encoders[column].transform([value])[0])
+    else:  # Numerical column
+        value = st.number_input(f"{column}:", min_value=0, step=1)
+        user_input.append(value)
 
 if st.button("Get Recommendations"):
     try:
-        user_input = [int(val) for val in user_input]
         recommendations = recommend_employees(model, user_input, data)
         st.subheader("Top 3 Recommended Employees:")
         for i, employee in enumerate(recommendations, 1):
             st.write(f"{i}. Employee ID: {employee}")
-    except ValueError:
-        st.error("Please fill in all fields with valid inputs.")
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
