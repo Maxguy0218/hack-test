@@ -6,7 +6,7 @@ from sklearn.preprocessing import LabelEncoder
 # Load Dataset
 @st.cache_resource
 def load_and_train_model():
-    file_path = 'synthetic_final_mapping (1).csv'
+    file_path = '/mnt/data/synthetic_final_mapping (1).csv'
     data = pd.read_csv(file_path)
 
     # Select relevant columns for the model
@@ -17,11 +17,11 @@ def load_and_train_model():
     data = data[relevant_columns]
 
     # Preprocess data
-    le = LabelEncoder()
-    column_encoders = {}
+    label_encoders = {}
     for column in data.select_dtypes(include=['object']).columns:
+        le = LabelEncoder()
         data[column] = le.fit_transform(data[column].fillna("Unknown"))
-        column_encoders[column] = le  # Save encoders for later
+        label_encoders[column] = le
 
     # Train the model
     X = data.drop("Employment ID", axis=1)
@@ -29,7 +29,7 @@ def load_and_train_model():
     model = RandomForestClassifier(random_state=42)
     model.fit(X, y)
 
-    return model, data, column_encoders
+    return model, data, label_encoders
 
 # Recommend Employees
 def recommend_employees(model, input_data, data):
@@ -44,18 +44,18 @@ st.title("Employee Recommendation System")
 
 # Load and train model
 st.write("Initializing model...")
-model, data, column_encoders = load_and_train_model()
+model, data, label_encoders = load_and_train_model()
 st.success("Model is ready!")
 
 # Collect Demand Attributes
 st.subheader("Enter Demand Attributes")
 user_input = []
 for column in data.columns.drop("Employment ID"):
-    if column in column_encoders:  # If column is categorical
-        options = list(column_encoders[column].classes_)
+    if column in label_encoders:
+        options = label_encoders[column].classes_
         value = st.selectbox(f"{column}:", options)
-        user_input.append(column_encoders[column].transform([value])[0])
-    else:  # Numerical column
+        user_input.append(label_encoders[column].transform([value])[0])
+    else:
         value = st.number_input(f"{column}:", min_value=0, step=1)
         user_input.append(value)
 
