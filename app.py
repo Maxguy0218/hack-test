@@ -35,7 +35,8 @@ def load_and_train_model():
 def recommend_employees(model, input_data, data):
     predictions = model.predict_proba([input_data])[0]
     employee_indices = predictions.argsort()[-3:][::-1]
-    top_employees = [data.iloc[i] for i in employee_indices]
+    employee_ids = data["Employment ID"].unique()
+    top_employees = [employee_ids[i] for i in employee_indices]
     return top_employees
 
 # Streamlit App
@@ -63,7 +64,6 @@ if st.button("Get Recommendations"):
         recommendations = recommend_employees(model, user_input, data)
         st.subheader("Top 3 Recommended Employees:")
         for i, employee in enumerate(recommendations, 1):
-            st.write(f"{i}. Employee Details:")
-            st.write(employee.to_dict())
+            st.write(f"{i}. Employee ID: {employee}")
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
