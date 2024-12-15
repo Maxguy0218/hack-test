@@ -12,7 +12,7 @@ def load_and_train_model():
     # Select relevant columns for the model
     relevant_columns = [
         "Role Status", "Region", "Project Type", "Track", "Location Shore", 
-        "Primary Skill (Must have)", "Grade", "Competency", "Skills", "Employment ID"
+        "Primary Skill (Must have)", "Grade", "Employment ID"
     ]
     data = data[relevant_columns]
 
