@@ -51,7 +51,7 @@ demand_data = pd.read_csv(uploaded_file)
 
 # User selects ID from dropdown
 st.subheader("Select Demand ID")
-demand_id = st.selectbox("Demand ID:", demand_data['Demand ID'].unique())
+demand_id = st.selectbox("ID:", demand_data['ID'].unique())
 
 # Auto-populate fields based on selected ID
 selected_row = demand_data[demand_data['ID'] == demand_id].iloc[0]
