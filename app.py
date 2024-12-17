@@ -60,6 +60,7 @@ user_input = []
 st.subheader("Auto-Populated Demand Attributes")
 col1, col2 = st.columns(2)
 
+missing_columns = []
 for idx, column in enumerate(feature_columns):
     with col1 if idx % 2 == 0 else col2:
         if column in selected_row.index:
@@ -69,6 +70,13 @@ for idx, column in enumerate(feature_columns):
                 user_input.append(label_encoders[column].transform([value])[0])
             else:
                 user_input.append(value)
+        else:
+            # Handle missing column
+            missing_columns.append(column)
+
+# Debugging output
+if missing_columns:
+    st.warning(f"The following required columns are missing or not found in the uploaded file: {missing_columns}")
 
 # Ensure the input vector has all features
 if len(user_input) != len(feature_columns):
