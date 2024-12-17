@@ -45,9 +45,9 @@ st.title("Demand To Talent")
 # Load and train model
 model, data, label_encoders = load_and_train_model()
 
-# Load the user-provided Excel file
-uploaded_file = 'selected_demand.csv'
-demand_data = pd.read_excel(uploaded_file)
+# Load the user-provided CSV file
+uploaded_file = '/mnt/data/selected_demand.csv'
+demand_data = pd.read_csv(uploaded_file)
 
 # User selects ID from dropdown
 st.subheader("Select Demand ID")
