@@ -43,23 +43,26 @@ def recommend_employees(model, input_data, data):
 st.title("Employee Recommendation System")
 
 # Load and train model
-st.write("Initializing model...")
 model, data, label_encoders = load_and_train_model()
-st.success("Model is ready!")
 
+# Collect Demand Attributes
 # Collect Demand Attributes
 st.subheader("Enter Demand Attributes")
 user_input = []
-for column in data.columns.drop("Employment ID"):
-    if column in label_encoders:
-        options = label_encoders[column].classes_
-        value = st.selectbox(f"{column}:", options)
-        user_input.append(label_encoders[column].transform([value])[0])
-    else:
-        value = st.number_input(f"{column}:", min_value=0, step=1)
-        user_input.append(value)
+columns = data.columns.drop("Employment ID")
+col1, col2 = st.columns(2)
 
-if st.button("Get Recommendations"):
+for idx, column in enumerate(columns):
+    with col1 if idx % 2 == 0 else col2:
+        if column in label_encoders:
+            options = label_encoders[column].classes_
+            value = st.selectbox(f"{column}:", options, key=column)
+            user_input.append(label_encoders[column].transform([value])[0])
+        else:
+            value = st.number_input(f"{column}:", min_value=0, step=1, key=column)
+            user_input.append(value)
+
+if st.button("Get Suitable Employees"):
     try:
         recommendations = recommend_employees(model, user_input, data)
         st.subheader("Top 3 Recommended Employees:")
