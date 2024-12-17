@@ -69,7 +69,7 @@ with col2:
 selected_row = demand_data[demand_data['ID'] == demand_id].iloc[0]
 user_input = []
 
-st.subheader("🎯 Auto-Populated Attributes")
+
 auto_populated_section = st.container()
 with auto_populated_section:
     col1, col2 = st.columns(2)
