@@ -54,7 +54,7 @@ st.subheader("Select Demand ID")
 demand_id = st.selectbox("Demand ID:", demand_data['Demand ID'].unique())
 
 # Auto-populate fields based on selected ID
-selected_row = demand_data[demand_data['Demand ID'] == demand_id].iloc[0]
+selected_row = demand_data[demand_data['ID'] == demand_id].iloc[0]
 user_input = []
 
 columns = data.columns.drop("Employment ID")
