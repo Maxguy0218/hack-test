@@ -29,7 +29,7 @@ def load_and_train_model():
     model = RandomForestClassifier(random_state=42)
     model.fit(X, y)
 
-    return model, data, label_encoders
+    return model, data, label_encoders, relevant_columns[:-1]
 
 # Recommend Employees
 def recommend_employees(model, input_data, data):
@@ -43,7 +43,7 @@ def recommend_employees(model, input_data, data):
 st.title("Demand To Talent")
 
 # Load and train model
-model, data, label_encoders = load_and_train_model()
+model, data, label_encoders, feature_columns = load_and_train_model()
 
 # Load the user-provided CSV file
 uploaded_file = 'selected_demand.csv'
@@ -57,11 +57,10 @@ demand_id = st.selectbox("ID:", demand_data['ID'].unique())
 selected_row = demand_data[demand_data['ID'] == demand_id].iloc[0]
 user_input = []
 
-columns = data.columns.drop("Employment ID")
 st.subheader("Auto-Populated Demand Attributes")
 col1, col2 = st.columns(2)
 
-for idx, column in enumerate(columns):
+for idx, column in enumerate(feature_columns):
     with col1 if idx % 2 == 0 else col2:
         if column in selected_row.index:
             value = selected_row[column]
@@ -71,11 +70,15 @@ for idx, column in enumerate(columns):
             else:
                 user_input.append(value)
 
-if st.button("Get Suitable Employees"):
-    try:
-        recommendations = recommend_employees(model, user_input, data)
-        st.subheader("Top 3 Employees:")
-        for i, employee in enumerate(recommendations, 1):
-            st.write(f"{i}. Employee ID: {employee}")
-    except Exception as e:
-        st.error(f"An error occurred: {str(e)}")
+# Ensure the input vector has all features
+if len(user_input) != len(feature_columns):
+    st.error(f"Error: Input features are incomplete. Expected {len(feature_columns)}, but got {len(user_input)}.")
+else:
+    if st.button("Get Suitable Employees"):
+        try:
+            recommendations = recommend_employees(model, user_input, data)
+            st.subheader("Top 3 Employees:")
+            for i, employee in enumerate(recommendations, 1):
+                st.write(f"{i}. Employee ID: {employee}")
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
