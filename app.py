@@ -40,32 +40,41 @@ def recommend_employees(model, input_data, data):
     return top_employees
 
 # Streamlit App
-st.title("Employee Recommendation System")
+st.title("Demand To Talent")
 
 # Load and train model
 model, data, label_encoders = load_and_train_model()
 
-# Collect Demand Attributes
-# Collect Demand Attributes
-st.subheader("Enter Demand Attributes")
+# Load the user-provided Excel file
+uploaded_file = 'selected_demand.xlsx'
+demand_data = pd.read_excel(uploaded_file)
+
+# User selects ID from dropdown
+st.subheader("Select Demand ID")
+demand_id = st.selectbox("Demand ID:", demand_data['Demand ID'].unique())
+
+# Auto-populate fields based on selected ID
+selected_row = demand_data[demand_data['Demand ID'] == demand_id].iloc[0]
 user_input = []
+
 columns = data.columns.drop("Employment ID")
+st.subheader("Auto-Populated Demand Attributes")
 col1, col2 = st.columns(2)
 
 for idx, column in enumerate(columns):
     with col1 if idx % 2 == 0 else col2:
-        if column in label_encoders:
-            options = label_encoders[column].classes_
-            value = st.selectbox(f"{column}:", options, key=column)
-            user_input.append(label_encoders[column].transform([value])[0])
-        else:
-            value = st.number_input(f"{column}:", min_value=0, step=1, key=column)
-            user_input.append(value)
+        if column in selected_row.index:
+            value = selected_row[column]
+            st.text_input(f"{column}:", value, key=column, disabled=True)
+            if column in label_encoders:
+                user_input.append(label_encoders[column].transform([value])[0])
+            else:
+                user_input.append(value)
 
 if st.button("Get Suitable Employees"):
     try:
         recommendations = recommend_employees(model, user_input, data)
-        st.subheader("Top 3 Recommended Employees:")
+        st.subheader("Top 3 Employees:")
         for i, employee in enumerate(recommendations, 1):
             st.write(f"{i}. Employee ID: {employee}")
     except Exception as e:
