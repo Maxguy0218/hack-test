@@ -42,7 +42,9 @@ def recommend_employees(model, input_data, data):
     return top_employees
 
 # Streamlit App
-st.title("Demand To Talent")
+st.set_page_config(page_title="Demand to Talent", layout="wide", page_icon=":briefcase:")
+st.title("🌟 Demand to Talent Matchmaker")
+st.markdown("---")
 
 # Load and train model
 model, data, label_encoders, feature_columns = load_and_train_model()
@@ -51,53 +53,62 @@ model, data, label_encoders, feature_columns = load_and_train_model()
 uploaded_file = 'sample_demand_data.csv'
 demand_data = pd.read_csv(uploaded_file)
 
+# Layout: Input Section
+st.header("📋 Enter Demand Details")
+st.markdown("Please select a demand ID to auto-populate required attributes.")
+
 # User selects ID from dropdown
-st.subheader("Select Demand ID")
-demand_id = st.selectbox("ID:", demand_data['ID'].unique())
+col1, col2 = st.columns([1, 3])
+with col1:
+    demand_id = st.selectbox("**Select Demand ID**", demand_data['ID'].unique(), help="Choose a demand ID to populate attributes.")
+    
+with col2:
+    st.write("")
 
 # Auto-populate fields based on selected ID
 selected_row = demand_data[demand_data['ID'] == demand_id].iloc[0]
 user_input = []
 
-st.subheader("Auto-Populated Demand Attributes")
-col1, col2 = st.columns(2)
+st.subheader("🎯 Auto-Populated Attributes")
+auto_populated_section = st.container()
+with auto_populated_section:
+    col1, col2 = st.columns(2)
+    for idx, column in enumerate(feature_columns):
+        with col1 if idx % 2 == 0 else col2:
+            if column in selected_row.index:
+                value = selected_row[column]
+                st.text_input(f"**{column}:**", value, key=column, disabled=True)
+                if column in label_encoders:
+                    user_input.append(label_encoders[column].transform([value])[0])
+                else:
+                    user_input.append(value)
 
-missing_columns = []
-for idx, column in enumerate(feature_columns):
-    with col1 if idx % 2 == 0 else col2:
-        if column in selected_row.index:
-            value = selected_row[column]
-            st.text_input(f"{column}:", value, key=column, disabled=True)
-            if column in label_encoders:
-                user_input.append(label_encoders[column].transform([value])[0])
-            else:
-                user_input.append(value)
-        else:
-            missing_columns.append(column)
-
-# Debugging output
-if missing_columns:
-    st.warning(f"The following required columns are missing or not found in the uploaded file: {missing_columns}")
-
-# Ensure the input vector has all features
+# Ensure input features are complete
 if len(user_input) != len(feature_columns):
     st.error(f"Error: Input features are incomplete. Expected {len(feature_columns)}, but got {len(user_input)}.")
 else:
-    if st.button("Get Suitable Employees"):
+    if st.button("🚀 Get Suitable Employees"):
         try:
             recommendations = recommend_employees(model, user_input, data)
 
-            # Retrieve and display details of recommended employees
-            st.subheader("Top 3 Recommended Employees:")
-            employee_details = []
-            for employee_id in recommendations:
-                details = data[data["Employment ID"] == employee_id][
+            # Layout: Recommended Employees Section
+            st.markdown("---")
+            st.header("🏆 Top 3 Recommended Employees")
+            for i, employee_id in enumerate(recommendations, 1):
+                employee_details = data[data["Employment ID"] == employee_id][
                     ["Employment ID", "First Name", "Last Name", "Email", "Designation", "Pay Grade"]
                 ].iloc[0].to_dict()
-                employee_details.append(details)
 
-            # Convert details to a DataFrame for tabular display
-            df = pd.DataFrame(employee_details)
-            st.dataframe(df, use_container_width=True)
+                # Display each employee in a styled "card"
+                st.markdown(f"""
+                <div style="border: 2px solid #4CAF50; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                    <h3 style="color: #2E8B57;">{i}. {employee_details['First Name']} {employee_details['Last Name']}</h3>
+                    <p><strong>Employee ID:</strong> {employee_details['Employment ID']}</p>
+                    <p><strong>Email:</strong> {employee_details['Email']}</p>
+                    <p><strong>Designation:</strong> {employee_details['Designation']}</p>
+                    <p><strong>Pay Grade:</strong> {employee_details['Pay Grade']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
