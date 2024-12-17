@@ -1,0 +1,11 @@
+ID,Role Status,Region,Project Name,Project Type,Demand Received Date,Track,Location Shore,Primary Skill (Must have),Grade,Role Start Date,Role End Date,Number of FTE
+1001,Staffed,EUK,Anderson Group,CEMS,1/5/2024,HCM,Onsite,Redwood HCM - Core HR and ORC,G8,11/1/2024,1/1/2026,0.8
+1002,Open,EUK,Brown Inc,Impl,2/10/2024,FIN,Offshore,Core HR & Payroll,G6,12/1/2024,2/1/2026,1
+1003,Staffed,AMEA,Carter Ltd,CEMS,3/15/2024,HCM,Onsite,"Core HR,Talent",G6,1/1/2025,3/1/2026,0.7
+1004,Open,EUK,Davis Co,Impl,4/20/2024,FIN,Offshore,Onboarding Journeys,G8,2/1/2025,4/1/2026,0.6
+1005,Staffed,AMEA,Evans LLC,CEMS,5/25/2024,HCM,Onsite,"Core HR,Talent",G5,3/1/2025,5/1/2026,0.9
+1006,Open,EUK,Foster and Sons,Impl,6/30/2024,FIN,Offshore,Core HR & Payroll,T2,4/1/2025,6/1/2026,1
+1007,Staffed,AMEA,Garcia Partners,CEMS,7/5/2024,HCM,Onsite,Onboarding Journeys,G8,5/1/2025,7/1/2026,0.5
+1008,Open,EUK,Hernandez Solutions,Impl,8/10/2024,FIN,Offshore,"Core HR,Talent",G10,6/1/2025,8/1/2026,0.6
+1009,Staffed,AMEA,Jackson Group,CEMS,9/15/2024,HCM,Onsite,Onboarding Journeys,G5,7/1/2025,9/1/2026,0.8
+1010,Open,EUK,King Enterprises,Impl,10/20/2024,FIN,Offshore,"ORC, Core HR, Absence, Benefits, Talent and Compensation.",G10,8/1/2025,10/1/2026,0.7
