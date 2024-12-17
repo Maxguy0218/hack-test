@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 
-# Load Dataset
+# Load Dataset and Train Model
 @st.cache_resource
 def load_and_train_model():
     file_path = 'synthetic_final_mapping (1).csv'
@@ -12,24 +12,26 @@ def load_and_train_model():
     # Select relevant columns for the model
     relevant_columns = [
         "Role Status", "Region", "Project Type", "Track", "Location Shore", 
-        "Primary Skill (Must have)", "Grade", "Employment ID"
+        "Primary Skill (Must have)", "Grade", "Employment ID", "Email", 
+        "First Name", "Last Name"
     ]
     data = data[relevant_columns]
 
     # Preprocess data
     label_encoders = {}
     for column in data.select_dtypes(include=['object']).columns:
-        le = LabelEncoder()
-        data[column] = le.fit_transform(data[column].fillna("Unknown"))
-        label_encoders[column] = le
+        if column not in ["Employment ID", "Email", "First Name", "Last Name"]:
+            le = LabelEncoder()
+            data[column] = le.fit_transform(data[column].fillna("Unknown"))
+            label_encoders[column] = le
 
     # Train the model
-    X = data.drop("Employment ID", axis=1)
+    X = data.drop(["Employment ID", "Email", "First Name", "Last Name"], axis=1)
     y = data["Employment ID"]
     model = RandomForestClassifier(random_state=42)
     model.fit(X, y)
 
-    return model, data, label_encoders, relevant_columns[:-1]
+    return model, data, label_encoders, relevant_columns[:-4]
 
 # Recommend Employees
 def recommend_employees(model, input_data, data):
@@ -46,7 +48,7 @@ st.title("Demand To Talent")
 model, data, label_encoders, feature_columns = load_and_train_model()
 
 # Load the user-provided CSV file
-uploaded_file = 'sample_demand_data.csv'
+uploaded_file = '/mnt/data/selected_demand.csv'
 demand_data = pd.read_csv(uploaded_file)
 
 # User selects ID from dropdown
@@ -71,7 +73,6 @@ for idx, column in enumerate(feature_columns):
             else:
                 user_input.append(value)
         else:
-            # Handle missing column
             missing_columns.append(column)
 
 # Debugging output
@@ -85,8 +86,16 @@ else:
     if st.button("Get Suitable Employees"):
         try:
             recommendations = recommend_employees(model, user_input, data)
+
+            # Display details of recommended employees
             st.subheader("Top 3 Employees:")
-            for i, employee in enumerate(recommendations, 1):
-                st.write(f"{i}. Employee ID: {employee}")
+            for i, employee_id in enumerate(recommendations, 1):
+                employee_details = data[data["Employment ID"] == employee_id][
+                    ["Email", "First Name", "Last Name"]
+                ].iloc[0]
+                st.write(f"**{i}. Employee ID: {employee_id}**")
+                st.write(f"- **Email**: {employee_details['Email']}")
+                st.write(f"- **First Name**: {employee_details['First Name']}")
+                st.write(f"- **Last Name**: {employee_details['Last Name']}")
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
